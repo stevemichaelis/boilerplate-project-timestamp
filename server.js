@@ -14,7 +14,7 @@ app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 20
 app.use(express.static('public'));
 
 // http://expressjs.com/en/starter/basic-routing.html
-app.get("/", function (req, res) {
+app.get("/", (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
 
@@ -29,4 +29,30 @@ app.get("/api/hello", function (req, res) {
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
+});
+
+
+app.get('/api/:dateString?', (req, res) => {
+  const dateString = req.params.dateString;
+  let date;
+  // if dateString is empty it should be the same to new Date() and return the current time stamp
+  if (!dateString) {
+    date = new Date();
+  } else {
+    // if dateString is not an integer convert it
+    // if dateString is not empty
+    if (!isNaN(dateString)) {
+      date = new Date(parseInt(dateString));
+    } else {
+      date = new Date(dateString);
+    }
+  }
+
+// api returns error if the date is invalid
+if (date.toString() === "Invalid Date") {
+  res.json({ error: date.toString() });
+} else {
+  // if the date is valid the api returns the date in the JSON with the format of the example output
+  res.json({ unix: date.getTime(), utc: date.toUTCString() });
+}
 });
